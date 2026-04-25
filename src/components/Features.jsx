@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import { useInView } from '../hooks/useInView'
 import { AgendaMockup, PatientMockup, InvoiceMockup, PatientDetailMockup, OdontogramMockup } from './AppMockup'
 
@@ -103,6 +104,105 @@ function FeatureSection({ section }) {
   )
 }
 
+function FeaturesSlider({ list }) {
+  const [perPage, setPerPage] = useState(4)
+  const [idx, setIdx]         = useState(0)
+  const [paused, setPaused]   = useState(false)
+  const timer = useRef(null)
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth
+      setPerPage(w >= 900 ? 4 : w >= 600 ? 2 : 1)
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  // max position = last card that can be the leftmost visible
+  const maxIdx = Math.max(0, list.length - perPage)
+  const positions = maxIdx + 1   // number of dots
+
+  useEffect(() => { setIdx(i => Math.min(i, maxIdx)) }, [maxIdx])
+
+  useEffect(() => {
+    if (paused || positions <= 1) return
+    timer.current = setInterval(() => setIdx(i => i >= maxIdx ? 0 : i + 1), 3500)
+    return () => clearInterval(timer.current)
+  }, [paused, positions, maxIdx])
+
+  const go = (delta) => {
+    clearInterval(timer.current)
+    setIdx(i => { const n = i + delta; return n < 0 ? maxIdx : n > maxIdx ? 0 : n })
+  }
+
+  // Each card occupies exactly 1/perPage of the viewport width
+  const pct = 100 / perPage
+
+  const arrowBase = {
+    position:'absolute', top:'50%', transform:'translateY(-50%)',
+    width:36, height:36, borderRadius:'50%',
+    background:'#fff', border:'1.5px solid #E2E8F0',
+    boxShadow:'0 2px 8px rgba(0,0,0,.1)',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    cursor:'pointer', fontSize:20, color:'#1B5B7E', zIndex:2,
+    transition:'background .15s, color .15s',
+  }
+
+  return (
+    <section id="features" style={{ padding:'72px 5% 60px', background:'#F7FAFC' }}>
+      <div style={{ maxWidth:1100, margin:'0 auto' }}>
+        <div style={{ position:'relative', padding:'0 10px' }}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          <div style={{ overflow:'hidden' }}>
+            <div style={{
+              display:'flex',
+              transform:`translateX(-${idx * pct}%)`,
+              transition:'transform 0.55s cubic-bezier(0.4,0,0.2,1)',
+            }}>
+              {list.map((f, i) => (
+                <div key={i} style={{ flex:`0 0 ${pct}%`, padding:'0 8px', boxSizing:'border-box' }}>
+                  <GridCard feature={f} delay={(i % 3) + 1} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {positions > 1 && <>
+            <button
+              onClick={() => go(-1)}
+              style={{ ...arrowBase, left:-18 }}
+              onMouseEnter={e => { e.currentTarget.style.background='#1B5B7E'; e.currentTarget.style.color='#fff' }}
+              onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#1B5B7E' }}
+            >‹</button>
+            <button
+              onClick={() => go(1)}
+              style={{ ...arrowBase, right:-18 }}
+              onMouseEnter={e => { e.currentTarget.style.background='#1B5B7E'; e.currentTarget.style.color='#fff' }}
+              onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#1B5B7E' }}
+            >›</button>
+          </>}
+        </div>
+
+        {positions > 1 && (
+          <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:6, marginTop:28 }}>
+            {Array.from({ length: positions }).map((_, i) => (
+              <button key={i} onClick={() => { clearInterval(timer.current); setIdx(i) }} style={{
+                width: i === idx ? 26 : 8, height:8, borderRadius:4, padding:0, border:'none',
+                background: i === idx ? '#1B5B7E' : '#CBD5E0',
+                cursor:'pointer', transition:'width .35s, background .35s',
+              }} />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
 export default function Features({ features }) {
   const [titleRef, titleInView] = useInView()
   const list = Array.isArray(features) && features.length ? features : FEATURES_GRID
@@ -128,12 +228,7 @@ export default function Features({ features }) {
         </div>
       </section>
 
-      {/* Feature grid */}
-      <section id="features" style={{ padding:'80px 5%', background:'#F7FAFC' }}>
-        <div style={{ maxWidth:1100, margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))', gap:16 }}>
-          {list.map((f, i) => <GridCard key={i} feature={f} delay={(i % 3) + 1} />)}
-        </div>
-      </section>
+      <FeaturesSlider list={list} />
 
       <style>{`
         .feat-section {
