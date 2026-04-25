@@ -5,7 +5,7 @@ import About from '../components/About'
 import DemoForm from '../components/DemoForm'
 import Footer from '../components/Footer'
 
-export default function Landing({ content, onAdmin }) {
+export default function Landing({ content }) {
   const features = (() => {
     try {
       const f = content?.features
@@ -17,12 +17,12 @@ export default function Landing({ content, onAdmin }) {
 
   return (
     <>
-      <Navbar onAdmin={onAdmin} />
+      <Navbar />
       <Hero content={content} />
       <Features features={features} />
       <About content={content} />
       <DemoForm />
-      <Footer onAdmin={onAdmin} />
+      <Footer />
     </>
   )
 }

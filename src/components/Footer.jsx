@@ -1,4 +1,4 @@
-export default function Footer({ onAdmin }) {
+export default function Footer() {
   return (
     <footer style={{ background: '#0C1E38', color: '#fff' }}>
 
@@ -61,7 +61,6 @@ export default function Footer({ onAdmin }) {
           <span style={{ fontSize:12, color:'rgba(255,255,255,.22)' }}>© 2026 DentaCare — Tous droits réservés</span>
           <div style={{ display:'flex', gap:16, alignItems:'center', flexWrap:'wrap' }}>
             <span style={{ fontSize:12, color:'rgba(255,255,255,.22)' }}>Politique de confidentialité</span>
-            <button onClick={onAdmin} style={{ background:'none', border:'none', color:'rgba(255,255,255,.04)', fontSize:9, cursor:'pointer', padding:0 }}>admin</button>
           </div>
         </div>
       </div>

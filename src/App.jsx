@@ -47,5 +47,5 @@ export default function App() {
   }
 
   if (page === 'admin') return <Admin onBack={goLanding} />
-  return <Landing content={content} onAdmin={goAdmin} />
+  return <Landing content={content} />
 }
