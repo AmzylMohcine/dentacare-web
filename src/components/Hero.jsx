@@ -1,7 +1,7 @@
 import { DashboardMockup } from './AppMockup'
 
 const TRUST = [
-  { value: '+50',   label: 'Cabinets actifs' },
+  { value: '+200',   label: 'Cabinets actifs' },
   { value: '99.9%', label: 'Disponibilité' },
   { value: '< 2s',  label: 'Temps de réponse' },
   { value: 'RGPD',  label: 'Données protégées' },
