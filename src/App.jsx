@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import Landing from './pages/Landing'
 import Admin from './pages/Admin'
+import Booking from './pages/Booking'
 
 const DEFAULT_CONTENT = {
   hero_title: 'La solution complète pour votre cabinet dentaire',
@@ -13,16 +14,20 @@ const DEFAULT_CONTENT = {
   footer_text: '© 2026 DentaCare. Tous droits réservés.',
 }
 
-function getPage() {
-  return window.location.pathname === '/admin' ? 'admin' : 'landing'
+function getRoute() {
+  const path = window.location.pathname
+  if (path === '/admin') return { page: 'admin', cabinetId: null }
+  const m = path.match(/^\/rdv\/([^/]+)$/)
+  if (m) return { page: 'booking', cabinetId: m[1] }
+  return { page: 'landing', cabinetId: null }
 }
 
 export default function App() {
-  const [page, setPage] = useState(getPage)
+  const [route, setRoute] = useState(getRoute)
   const [content, setContent] = useState(DEFAULT_CONTENT)
 
   useEffect(() => {
-    const onPop = () => setPage(getPage())
+    const onPop = () => setRoute(getRoute())
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
@@ -38,14 +43,15 @@ export default function App() {
 
   const goAdmin = () => {
     window.history.pushState({}, '', '/admin')
-    setPage('admin')
+    setRoute({ page: 'admin', cabinetId: null })
   }
 
   const goLanding = () => {
     window.history.pushState({}, '', '/')
-    setPage('landing')
+    setRoute({ page: 'landing', cabinetId: null })
   }
 
-  if (page === 'admin') return <Admin onBack={goLanding} />
+  if (route.page === 'admin')   return <Admin onBack={goLanding} />
+  if (route.page === 'booking') return <Booking cabinetId={route.cabinetId} />
   return <Landing content={content} />
 }
