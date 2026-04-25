@@ -1,0 +1,118 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Exact app colors */
+  --side:   #0C1E38;
+  --side-h: #142D50;
+  --side-a: #1B3D6A;
+  --pri:    #1B5B7E;
+  --pri-l:  #E6F3F9;
+  --acc:    #38B2AC;
+  --acc-g:  rgba(56,178,172,.12);
+
+  /* Light page */
+  --bg:       #FFFFFF;
+  --bg-2:     #F7FAFC;
+  --bg-3:     #EFF6FB;
+  --border:   #E2E8F0;
+  --border-2: #CBD5E1;
+  --tx:       #0C1E38;
+  --tx-m:     #64748B;
+  --tx-l:     #94A3B8;
+
+  /* Stat card colors (same as app) */
+  --c-rdv:  #6C5CE7;
+  --c-ok:   #10B981;
+  --c-pat:  #0EA5E9;
+  --c-ca:   #F59E0B;
+
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 24px rgba(0,0,0,.10);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,.14);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; }
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: .6; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+@keyframes shimmer-line {
+  0%   { left: -60%; }
+  100% { left: 110%; }
+}
+@keyframes badge-pop {
+  0%   { transform: scale(.8); opacity: 0; }
+  70%  { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Scroll-trigger utility ─────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .55s ease, transform .55s ease;
+}
+.reveal.on { opacity: 1; transform: none; }
+
+.delay-1 { transition-delay: .08s !important; }
+.delay-2 { transition-delay: .16s !important; }
+.delay-3 { transition-delay: .24s !important; }
+.delay-4 { transition-delay: .32s !important; }
+.delay-5 { transition-delay: .40s !important; }
+.delay-6 { transition-delay: .48s !important; }
+
+/* ── Gradient text ──────────────────────────────────────────── */
+.g-text {
+  background: linear-gradient(135deg, var(--pri) 0%, var(--acc) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Section badge ──────────────────────────────────────────── */
+.s-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--pri-l); color: var(--pri);
+  font-size: 12px; font-weight: 700; letter-spacing: .5px;
+  padding: 5px 14px; border-radius: 100px;
+  border: 1px solid rgba(27,91,126,.2);
+  margin-bottom: 18px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hide-mob { display: none !important; }
+}
+@media (min-width: 769px) {
+  .hide-desk { display: none !important; }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
