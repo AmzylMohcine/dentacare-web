@@ -317,7 +317,7 @@ export default function Booking({ cabinetId }) {
                       <option value="">Indifférent</option>
                       {HEURES.map(h => {
                         const taken = takenSlots.includes(h)
-                        return <option key={h} value={h} disabled={taken} style={{ color: taken ? '#CBD5E1' : '#0C1E38' }}>{taken ? `${h} — indisponible` : h}</option>
+                        return <option key={h} value={h} disabled={taken} style={{ color: taken ? '#CBD5E1' : '#0C1E38' }}>{h}</option>
                       })}
                     </select>
                   </div>
