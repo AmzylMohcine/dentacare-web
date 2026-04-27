@@ -56,37 +56,45 @@ export default function Booking({ cabinetId }) {
   const [cabinet, setCabinet]   = useState(null)
   const [loading, setLoading]   = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const [form, setForm]         = useState({ nom:'', prenom:'', tel:'', email:'', date:'', heure:'', type_soin:'', notes:'' })
+  const [form, setForm]         = useState({ nom:'', prenom:'', tel:'', email:'', date:'', heure:'', type_soin:'', notes:'', doctor_id:'' })
   const [sent, setSent]         = useState(false)
   const [sending, setSending]   = useState(false)
   const [err, setErr]           = useState('')
   const [focused, setFocused]   = useState(null)
   const [takenSlots, setTakenSlots] = useState([])
+  const [doctors, setDoctors]       = useState([])
   const formRef = useRef(null)
 
   useEffect(() => {
     if (!cabinetId) { setNotFound(true); setLoading(false); return }
     supabase.from('cabinet_settings').select('*').eq('booking_slug', cabinetId).limit(1).then(({ data }) => {
       if (!data || data.length === 0) { setNotFound(true); setLoading(false); return }
-      setCabinet(data[0])
+      const cab = data[0]
+      setCabinet(cab)
       setLoading(false)
+      supabase.from('profiles').select('id, full_name').eq('clinic_id', cab.clinic_id).in('role', ['owner', 'dentist']).then(({ data: docs }) => {
+        const list = docs || []
+        setDoctors(list)
+        if (list.length === 1) setForm(f => ({ ...f, doctor_id: list[0].id }))
+      })
     })
   }, [cabinetId])
 
   useEffect(() => {
     if (!cabinet?.clinic_id || !form.date) { setTakenSlots([]); return }
-    supabase
+    let q = supabase
       .from('appointments')
       .select('heure')
       .eq('clinic_id', cabinet.clinic_id)
       .eq('date', form.date)
       .in('statut', ['en attente', 'confirmé', 'en salle'])
-      .then(({ data }) => {
-        const taken = (data || []).map(a => a.heure)
-        setTakenSlots(taken)
-        if (form.heure && taken.includes(form.heure)) setForm(f => ({ ...f, heure: '' }))
-      })
-  }, [cabinet?.clinic_id, form.date])
+    if (form.doctor_id) q = q.eq('doctor_id', form.doctor_id)
+    q.then(({ data }) => {
+      const taken = (data || []).map(a => a.heure)
+      setTakenSlots(taken)
+      if (form.heure && taken.includes(form.heure)) setForm(f => ({ ...f, heure: '' }))
+    })
+  }, [cabinet?.clinic_id, form.date, form.doctor_id])
 
   const services = useMemo(() => {
     if (!cabinet?.dc_catalogue) return DEFAULT_SERVICES
@@ -115,6 +123,7 @@ export default function Booking({ cabinetId }) {
       heure_souhaitee: form.heure,
       type_soin:       form.type_soin,
       notes:           form.notes.trim(),
+      doctor_id:       form.doctor_id || null,
     }])
     if (error) { setErr('Une erreur est survenue, veuillez réessayer.'); setSending(false); return }
     setSent(true); setSending(false)
@@ -316,6 +325,21 @@ export default function Booking({ cabinetId }) {
                     {TYPE_SOINS.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
+
+                {doctors.length > 1 && (
+                  <div style={{ marginBottom:16 }}>
+                    <label style={labelStyle('doctor')}>Praticien souhaité</label>
+                    <select value={form.doctor_id} onChange={e=>setForm(f=>({...f,doctor_id:e.target.value,heure:''}))} {...F('doctor')} style={{ ...baseInp, ...inp('doctor'), appearance:'none', color: form.doctor_id ? '#0C1E38' : '#94A3B8' }}>
+                      <option value="">Indifférent</option>
+                      {doctors.map(d => <option key={d.id} value={d.id}>👨‍⚕️ {d.full_name}</option>)}
+                    </select>
+                  </div>
+                )}
+                {doctors.length === 1 && (
+                  <div style={{ marginBottom:16, padding:'10px 14px', background:'#F0F9FF', border:'1.5px solid #BAE6FD', borderRadius:9, fontSize:13, color:'#0369A1', fontWeight:600 }}>
+                    👨‍⚕️ {doctors[0].full_name}
+                  </div>
+                )}
 
                 <div className="book-grid-2" style={{ marginBottom:16 }}>
                   <div>
