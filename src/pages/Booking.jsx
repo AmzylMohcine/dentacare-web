@@ -306,6 +306,14 @@ export default function Booking({ cabinetId }) {
                   </div>
                 </div>
 
+                <div style={{ marginBottom:16 }}>
+                  <label style={labelStyle('type')}>Type de soin souhaité</label>
+                  <select value={form.type_soin} onChange={e=>setForm(f=>({...f,type_soin:e.target.value}))} {...F('type')} style={{ ...baseInp, ...inp('type'), appearance:'none', color: form.type_soin ? '#0C1E38' : '#94A3B8' }}>
+                    <option value="">Sélectionner un soin…</option>
+                    {TYPE_SOINS.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+
                 <div className="book-grid-2" style={{ marginBottom:16 }}>
                   <div>
                     <label style={labelStyle('date')}>Date souhaitée <span style={{ color:'#38B2AC' }}>*</span></label>
@@ -321,14 +329,6 @@ export default function Booking({ cabinetId }) {
                       })}
                     </select>
                   </div>
-                </div>
-
-                <div style={{ marginBottom:16 }}>
-                  <label style={labelStyle('type')}>Type de soin souhaité</label>
-                  <select value={form.type_soin} onChange={e=>setForm(f=>({...f,type_soin:e.target.value}))} {...F('type')} style={{ ...baseInp, ...inp('type'), appearance:'none', color: form.type_soin ? '#0C1E38' : '#94A3B8' }}>
-                    <option value="">Sélectionner un soin…</option>
-                    {TYPE_SOINS.map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
                 </div>
 
                 <div style={{ marginBottom:24 }}>
