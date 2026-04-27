@@ -80,7 +80,7 @@ export default function Booking({ cabinetId }) {
       .select('heure')
       .eq('clinic_id', cabinet.clinic_id)
       .eq('date', form.date)
-      .not('statut', 'in', '("annulé","reporté","absent")')
+      .in('statut', ['en attente', 'confirmé', 'en salle'])
       .then(({ data }) => {
         const taken = (data || []).map(a => a.heure)
         setTakenSlots(taken)
