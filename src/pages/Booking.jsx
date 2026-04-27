@@ -126,9 +126,9 @@ export default function Booking({ cabinetId }) {
   })
   const F = (key) => ({ onFocus: () => setFocused(key), onBlur: () => setFocused(null) })
   const nowDate  = new Date()
-  const today     = nowDate.toISOString().split('T')[0]
-  const nowTime   = `${String(nowDate.getHours()).padStart(2,'0')}:${String(nowDate.getMinutes()).padStart(2,'0')}`
-  const isPast    = (h) => form.date === today && h <= nowTime
+  const today    = `${nowDate.getFullYear()}-${String(nowDate.getMonth()+1).padStart(2,'0')}-${String(nowDate.getDate()).padStart(2,'0')}`
+  const nowTime  = `${String(nowDate.getHours()).padStart(2,'0')}:${String(nowDate.getMinutes()).padStart(2,'0')}`
+  const isPast   = (h) => form.date === today && h <= nowTime
 
   /* ── Loading ── */
   if (loading) return (
