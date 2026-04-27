@@ -61,6 +61,7 @@ export default function Booking({ cabinetId }) {
   const [sending, setSending]   = useState(false)
   const [err, setErr]           = useState('')
   const [focused, setFocused]   = useState(null)
+  const [takenSlots, setTakenSlots] = useState([])
   const formRef = useRef(null)
 
   useEffect(() => {
@@ -71,6 +72,21 @@ export default function Booking({ cabinetId }) {
       setLoading(false)
     })
   }, [cabinetId])
+
+  useEffect(() => {
+    if (!cabinet?.clinic_id || !form.date) { setTakenSlots([]); return }
+    supabase
+      .from('appointments')
+      .select('heure')
+      .eq('clinic_id', cabinet.clinic_id)
+      .eq('date', form.date)
+      .not('statut', 'in', '("annulé","reporté","absent")')
+      .then(({ data }) => {
+        const taken = (data || []).map(a => a.heure)
+        setTakenSlots(taken)
+        if (form.heure && taken.includes(form.heure)) setForm(f => ({ ...f, heure: '' }))
+      })
+  }, [cabinet?.clinic_id, form.date])
 
   const services = useMemo(() => {
     if (!cabinet?.dc_catalogue) return DEFAULT_SERVICES
@@ -87,6 +103,7 @@ export default function Booking({ cabinetId }) {
   const submit = async (e) => {
     e.preventDefault()
     if (!form.nom || !form.tel || !form.date) { setErr('Nom, téléphone et date sont requis.'); return }
+    if (form.heure && takenSlots.includes(form.heure)) { setErr(`Le créneau ${form.heure} est déjà pris. Veuillez choisir une autre heure.`); return }
     setSending(true); setErr('')
     const { error } = await supabase.from('online_bookings').insert([{
       clinic_id:       cabinet.clinic_id,
@@ -298,7 +315,10 @@ export default function Booking({ cabinetId }) {
                     <label style={labelStyle('heure')}>Heure préférée</label>
                     <select value={form.heure} onChange={e=>setForm(f=>({...f,heure:e.target.value}))} {...F('heure')} style={{ ...baseInp, ...inp('heure'), appearance:'none', color: form.heure ? '#0C1E38' : '#94A3B8' }}>
                       <option value="">Indifférent</option>
-                      {HEURES.map(h => <option key={h} value={h}>{h}</option>)}
+                      {HEURES.map(h => {
+                        const taken = takenSlots.includes(h)
+                        return <option key={h} value={h} disabled={taken} style={{ color: taken ? '#CBD5E1' : '#0C1E38' }}>{taken ? `${h} — indisponible` : h}</option>
+                      })}
                     </select>
                   </div>
                 </div>
