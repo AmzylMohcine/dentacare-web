@@ -125,7 +125,10 @@ export default function Booking({ cabinetId }) {
     border: `1.5px solid ${focused === k ? '#1B5B7E' : '#DEE5ED'}`,
   })
   const F = (key) => ({ onFocus: () => setFocused(key), onBlur: () => setFocused(null) })
-  const today = new Date().toISOString().split('T')[0]
+  const nowDate  = new Date()
+  const today     = nowDate.toISOString().split('T')[0]
+  const nowTime   = `${String(nowDate.getHours()).padStart(2,'0')}:${String(nowDate.getMinutes()).padStart(2,'0')}`
+  const isPast    = (h) => form.date === today && h <= nowTime
 
   /* ── Loading ── */
   if (loading) return (
@@ -324,8 +327,8 @@ export default function Booking({ cabinetId }) {
                     <select value={form.heure} onChange={e=>setForm(f=>({...f,heure:e.target.value}))} {...F('heure')} style={{ ...baseInp, ...inp('heure'), appearance:'none', color: form.heure ? '#0C1E38' : '#94A3B8' }}>
                       <option value="">Indifférent</option>
                       {HEURES.map(h => {
-                        const taken = takenSlots.includes(h)
-                        return <option key={h} value={h} disabled={taken} style={{ color: taken ? '#CBD5E1' : '#0C1E38' }}>{h}</option>
+                        const disabled = takenSlots.includes(h) || isPast(h)
+                        return <option key={h} value={h} disabled={disabled} style={{ color: disabled ? '#CBD5E1' : '#0C1E38' }}>{h}</option>
                       })}
                     </select>
                   </div>
